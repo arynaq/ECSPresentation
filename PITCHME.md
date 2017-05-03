@@ -1,5 +1,5 @@
 ---
----?image=killerbunny.jpg
+---?image=killerbunny.png
 Hello, World!
 
 ---
