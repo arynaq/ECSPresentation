@@ -128,6 +128,17 @@ template <typename E>
     };
 ```
 #HSLIDE 
+```c++
+struct CollisionResolutionEvent{
+    sf::Vector2f moveBy;
+    Entity entity;
+    CollisionResolutionEvent(sf::Vector2f moveBy, Entity entity):
+        moveBy(moveBy),entity(entity)
+    {
+    }
+};
+```
+#HSLIDE
 ### Example
 ```c++
 getWorld().messageHandler().emit<CollisionResolutionEvent>(dr, entity);
