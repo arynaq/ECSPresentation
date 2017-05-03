@@ -1,13 +1,17 @@
----
-#Entity Component System - A framework
----
+#HSLIDE
+#A framework..
+
+#HSLIDE
 #Imagine you are a gamedesigner...
 ---?image=/inheritance.png
----
+
+#HSLIDE
 ## Where does this zombie boar fit?
-#Composition to the rescue
-## A boar can be a standalone class, maybe
-## A boar is composed of objects that define data or logic
+
+#HSLIDE
+##Composition to the rescue
+### A boar can be a standalone class, maybe
+### A boar is composed of objects that define data or logic
 ---?image=/ecs2.png
 
 #HSLIDE
@@ -36,7 +40,7 @@ class Boar : public Enemy{
 #HSLIDE
 # Entity
 ## Identifier
-``c++
+```c++
 struct ID {
             using u32 = std::uint32_t;
             u32 index : ENTITY_COUNTER_BITS;   // bitfield 16 bits for this variable
@@ -54,7 +58,7 @@ struct ID {
                 return (counter << ENTITY_COUNTER_BITS  )| index;
             }
         };
-``
+```
 
 #HSLIDE
 # Component
@@ -70,7 +74,7 @@ struct CollisionComponent : Component {
 };
 ```
 #HSLIDE
-# Adding components to entity
+### Adding components to entity
 ```c++
 template<typename T, typename... Args>
 T& Entity::addComponent(Args&&...args){
@@ -83,15 +87,61 @@ T& Entity::addComponent(Args&&...args){
 
 #HSLIDE
 # System
-## Pure logic, maybe some auxillary data
-## Operate on matching entities
+### Pure logic, maybe some auxillary data
+
+### Operate on matching entities
 
 #HSLIDE
 # Challanges
-## Decoupled a lot, but if we need coupling?
-## Cache unfriendly (at this point)
+#HSLIDE
+#Decoupled a lot, but if we need coupling?
+#HSLIDE
+#Cache unfriendly (at this point)
+
+#HSLIDE
+### Event Manager
+```c++
+using Signal = boost::signals2::signal<void(const void*)>;
+template <typename E, typename Subscriber>
+    void subscribe(Subscriber& subscriber){
+        /** Cannot use auto for the callback, as overloaded functions will fudge up... **/
+        static_assert(std::is_base_of<Receiver<Subscriber>, Subscriber>::value, "Subscriber must derive from receiver!..");
+        void (Subscriber::*callback)(const E&) = &Subscriber::receive;
+        auto callbackWrapper = CallbackWrapper<E>(boost::bind(callback, &subscriber, _1));
+        TypeID id = Event<E>::getID();  
+        auto connection = map[id].connect(callbackWrapper);
+        subscriber.connections[id]= connection;
+    }
+```
+#HSLIDE
+### Callback
+```c++
+template <typename E>
+    struct CallbackWrapper {
+        explicit CallbackWrapper(boost::function<void(const E&)> callback) :callback(callback)
+        {
+        }
+        void operator()(const void* event){
+            callback(*(static_cast<const E*>(event)));
+        }
+        boost::function<void(const E&)> callback;
+    };
+```
+#HSLIDE 
+### Example
+```c++
+getWorld().messageHandler().emit<CollisionResolutionEvent>(dr, entity);
+....
+void MovementSystem::receive(const CollisionResolutionEvent& event){
+    if(event.entity.hasComponent<TransformComponent>()){
+        auto& transform = event.entity.getComponent<TransformComponent>().transform;
+        transform.move(event.moveBy);
+    }
+}
+```
 
 #HSLIDE
 # Short Demo
-## A star AI
+#HSLIDE 
+# A star AI
 The End :)
