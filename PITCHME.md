@@ -2,8 +2,13 @@
 <p align="center">
 Entity Component System - A framework
 </p>
----?image=/killerbunny.png
-Imagine you are a gamedesigner...
 ---
+Imagine you are a gamedesigner...
+---?image=/killerbunny.png
+---
+<p align="center">
+Composition to the rescue
+</p>
+
 
 The End :)
